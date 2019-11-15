@@ -1,75 +1,76 @@
 #pragma once
-/*
-Definition of species, producer and foodweb classes
-*/
-
+/* DEFINITION OF SPECIES, PRODUCER AND FOOD WEB CLASSES */
 
 // Parameters
-const int N = 20;
-// maximal number of species allowed in food web
+const int nMAX = 20;					// maximal number of species allowed in food web
 
 
-class species
+class Species
 {
 public:
-	species();						// default constructor
-	species(int added_i);			// constructor
-	~species();						// destructor
+	Species();						// default constructor
+	Species(int added_i);			// constructor
+	~Species();						// destructor
 
 //	counters
-	static int n;					// total number of species
-	bool primary;					// if producer: 1, else: 0
-	int added_i;					// added as number i_added
+	static int nTotal;				// total number of species
+	bool isProducer;				// determining if species is a producer. (if producer: 1, else: 0)
+	int addAttempt;					// addition attempt of the species
 
 //	parameters
-	double dS, S, a;				// time-derivative, density, decay rate
-	double l;						// trophic level
-	double consumers[N] = { 0 };	// if resourceed upon by S[i]: consumers = eta
-	double resources[N] = { 0 };	// if resourceing upon S[i]: resources[i] = beta*eta
+	double density, decay;			// time-derivative, density, decay rate
+	double dS;
+	double level;					// trophic level
+	double consumers[nMAX] = { 0 };	// array of interactions (with the species as resource)
+	double resources[nMAX] = { 0 };	// array of interactions (with the species as consumer)
+									/* The array entry at index i corresponds to the species at index i in the 
+									   species array. If the species doesn't have an interaction with species i,
+									   the corresponding entries are 0*/
 	
 //	functions
 	void derivative(double strengthen, double weaken);
 	// Lotka-Volterra equation for time derivative
-	void print_parameters(int index, species S_array[]);
+
+	void printParameters(int index);
 	// printing all paramters
 };
 
 
-class producer : public species
+class Producer : public Species
 {
 public:
-	producer();						// default constructor
-	producer(int added_i);			// constructor
-	~producer();					// destructor
+	Producer();						// default constructor
+	Producer(int added_i);			// constructor
+	~Producer();					// destructor
 
-	//	counters
-	static int n1;					// total number of producer species
+//	counters
+	static int nProducer;			// total number of primary producers
 
-	//	parameters
-	double k;						// growth rate
+//	parameters
+	double growth;					// growth rate
 
-	//	functions
+//	functions
 	void derivative(double nutrients, double weaken);
 	// Lotka-Voterra equation for time derivative
-	void print_parameters(int index, species S_array[]);
+
+	void printParameters(int index);
 	// printing all parameters
 };
 
 
-class foodweb
+class FoodWeb
 {
 public:
-	foodweb();
-	~foodweb();
+	FoodWeb();
+	~FoodWeb();
 
 	// characteristics of food web
 	static bool feasible;			// true if food web is feasible
 	static bool stable;				// true if food web is linearly stable
 
-	// characteristics of last food web
-	// used for time optimization
-	static int last_iteration;		// behavior after last invasion
-	static int last_extinct;		// last species to go extinct
+	// characteristics of previous food web
+	static int prevIteration;		// behavior after previous invasion
+	static int prevExtinct;			// previous species to go extinct
 };
 
 

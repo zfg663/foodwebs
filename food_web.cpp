@@ -1,6 +1,7 @@
 #include "food_web.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm> 
 using namespace std;
 
 
@@ -11,46 +12,49 @@ using namespace std;
 
 
 //	INTERACTIONS
-	bool add_link(species S[], producer P[], int resource, int consumer)
+	bool addLink(Species S[], Producer P[], int resource, int consumer)
 	{
 		if (resource == consumer)
 		{
-			//cout << "Error: species cannot consume itself!" << endl << endl;
+			//cout << "Error: Species cannot consume itself!" << endl << endl;
 			return false;
 		}
-		else if (S[consumer].primary)
+		else if (S[consumer].isProducer)
 		{
-			//cout << "Error: consumer is a producer!\n" << endl << endl;
+			//cout << "Error: consumer is a Producer!\n" << endl << endl;
 			return false;
 		}
 		else if (S[resource].consumers[consumer] != 0 && S[consumer].resources[resource] != 0 || S[resource].resources[consumer] != 0 && S[consumer].consumers[resource] != 0)
 		{
-			//cout << "Error: there is already a link between these species!" << endl << endl;
+			//cout << "Error: there is already a link between these Species!" << endl << endl;
 			return false;
 		}
 		// preventing absurd links
 
 		else
 		{
-			S[resource].consumers[consumer] = eta();
-			S[consumer].resources[resource] = eta() * beta();
+			double consumed = eta();
+			double consuming = consumed * beta();
+
+			S[resource].consumers[consumer] = consumed;
+			S[consumer].resources[resource] = consuming;
 			// initializing interaction
 
-			if (S[resource].primary)
+			if (S[resource].isProducer)
 			{
 				P[resource].consumers[consumer] = S[resource].consumers[consumer];
 			}
-			// transmitting links to producer array
+			// transmitting links to Producer array
 
 			return true;
 		}
 	}
 
-	void remove_link(species S[], producer P[], int resource, int consumer)
+	void removeLink(Species S[], Producer P[], int resource, int consumer)
 	{
 		if (S[resource].consumers[consumer] == 0 && S[consumer].resources[resource] == 0)
 		{
-			// cout << "Error: these species are not linked in this direction." << endl;
+			// cout << "Error: these Species are not linked in this direction." << endl;
 		}
 		else if (S[resource].consumers[consumer] == 0 && S[consumer].resources[resource] != 0 || S[resource].consumers[consumer] != 0 && S[consumer].resources[resource] == 0)
 		{
@@ -64,424 +68,396 @@ using namespace std;
 			S[consumer].resources[resource] = 0;
 			// setting interaction parameters to zero
 
-			if (S[resource].primary)
+			if (S[resource].isProducer)
 			{
 				P[resource].consumers[consumer] = S[resource].consumers[consumer];
 			}
 		}
 	}
 
-	void remove_all_links(species S[], producer P[], int index)
+	void removeAllLinks(Species S[], Producer P[], int index)
 	{
-		for (int i = 0; i <= species::n; i++)
+		for (int i = 0; i <= Species::nTotal; i++)
 		{
-			remove_link(S, P, index, i);
+			removeLink(S, P, index, i);
 			// removing consumers
 
-			if (!S[index].primary)
+			if (!S[index].isProducer)
 			{
-				remove_link(S, P, i, index);
+				removeLink(S, P, i, index);
 			}
 			// removing resources 
 		}
 	}
 
-	void trophic_level(species S[])
+	void updateTrophicLevel(Species S[])
 	{
-		int counter = producer::n1;
-		bool level_unknown[N] = { true };
+
+	//	UPDATING LEVELS OF ProducerS
+		int counter = Producer::nProducer;
+		// counting Species of known level
+
+		bool levelUnknown[nMAX] = {};
+		std::fill_n(levelUnknown + counter, Species::nTotal - counter, 1);
 		// array for keeping track of the number of levels that is yet to be computed
 
-		for (int i = 0; i < producer::n1; i++)
-		{
-			level_unknown[i] = false;
-		}
-		// updating the indices of producers in leve_unknown
 
-		while (counter < species::n)
+	//	UPDATING LEVEL OF OTHER Species
+		while (counter < Species::nTotal)
 		{
-			for (int i = producer::n1; i < species::n; i++)
+			for (int i = Producer::nProducer; i < Species::nTotal; i++)
 			{
-				double level = 0;
-				double max_level = 0;
-				double sum_beta = 0;
-				double sum_resources = 0;
-
-				double resource_level = 0;
-				bool omnivore = false;
-				int resources_of_unknown_level = 0;
-
-				for (int j = 0; j < species::n; j++)
+				if ( levelUnknown[i] )
 				{
-					if (level_unknown[j] && S[i].resources[j] > 0)
-					{
-						resources_of_unknown_level++;
-					}
-				}
-				// Checking if species is consuming species of unknown levels
+					double sum_eta_l = 0;
+					double sum_eta = 0;
+					double sum_resources = 0;
+					int resources_of_unknown_level = 0;
+					// resetting sums to zero
 
-				if ( resources_of_unknown_level == 0)
-				{
-					for (int j = 0; j < species::n; j++)
+					for (int j = 0; j < Species::nTotal; j++)
 					{
-							if (S[i].resources[j] > 0 && resource_level == 0)
-							{
-								resource_level = S[j].l;
-							}
-							// saving level of resource for comparison
-
-							else if (S[i].resources[j] > 0 && S[j].l != resource_level)
-							{
-								omnivore = true;
-								break;
-							}
-							// checking if species consumes resources at different levels
-					}
-					// checking if omnivore
-
-					for (int j = 0; j < species::n; j++)
-					{
-						if (S[i].resources[j] > 0)
+						if (levelUnknown[j] && S[i].resources[j] > 0)
 						{
-							sum_beta += S[i].resources[j];
-							sum_resources += 1;
-							// summing number of resources and interaction strength
-
-							if (S[j].l > max_level)
-							{
-								max_level = S[j].l;
-							}
-							// finding highest level of resource
+							resources_of_unknown_level++;
+							break;
 						}
 					}
-					// finding highest level of resource and sum of interaction.
+					// Checking if Species is consuming Species of unknown levels
 
-					if (omnivore)
+					if (resources_of_unknown_level == 0)
 					{
-						for (int j = 0; j < species::n; j++)
+						for (int j = 0; j < Species::nTotal; j++)
 						{
-								if (S[i].resources[j] > 0)
-								{
-									level += (S[j].l / (sum_resources * max_level)) * (S[i].resources[j] / sum_beta);
-								}
+							if (S[i].resources[j] > 0)
+							{
+								sum_eta_l += S[j].consumers[i] * S[j].level;
+								sum_eta += S[j].consumers[i];
+								sum_resources++;
+							}
 						}
-						// computing weighted average to add to max_level
-						
-						S[i].l = max_level + level;
-					}
-					// trophic level of omnivores
+						// updating sums
 
-					else
-					{
-						S[i].l = max_level + 1;
-					}
-					// trophic level of non-omnivores
+						S[i].level = 1 + sum_eta_l / (sum_resources * sum_eta);
+						// computing level
 
-					level_unknown[i] = false;
-					counter++;
-					// Updating counters
+						levelUnknown[i] = false;
+						counter++;
+						// updating counters
+					}
+					// Computing level if already computed level of all resources
 				}
-				// Computing level if already computed level of all resources
+				// if level of Species is yet to be computed
 			}
 		}
-		// running loop until all species' levels have been calculated
+		// running loop until all Species' levels have been calculated
 	}
 
 
 
-//	ADDING AND REMOVING SPECIES
-	int free_index(species S[], producer P[], bool primary)
+//	ADDING AND REMOVING Species
+	int freeIndex(Species S[], Producer P[], bool isProducer)
 	{
-		if (species::n == N)
+		if (Species::nTotal == nMAX)
 		{
 			cout << "Error: no free indices/array is too small!" << endl << endl;
+			return -1;
 		}
 		// checking if array is full
 
-		else if (primary && producer::n1 != species::n)
+		else if (isProducer && Producer::nProducer != Species::nTotal)
 		{
-				int new_index = producer::n1;
-				// index of new species
+				int newIndex = Producer::nProducer;
+				// index of new Species
 
-				S[species::n] = S[new_index];
-				// moving species with index n1 to index n
+				S[Species::nTotal] = S[newIndex];
+				// moving Species with index nProducer to index n
 
-				for (int j = 0; j < species::n; j++)
+				for (int j = 0; j < Species::nTotal; j++)
 				{
-					if (S[new_index].consumers[j] != 0)
+					if (S[newIndex].consumers[j] != 0)
 					{
-						S[j].resources[species::n] = S[j].resources[new_index];
-						S[j].resources[new_index] = 0;
+						S[j].resources[Species::nTotal] = S[j].resources[newIndex];
+						S[j].resources[newIndex] = 0;
 					}
 					// updating consumers
 
-					else if (S[new_index].resources[j] != 0)
+					else if (S[newIndex].resources[j] != 0)
 					{
-						S[j].consumers[species::n] = S[j].consumers[new_index];
-						S[j].consumers[new_index] = 0;
+						S[j].consumers[Species::nTotal] = S[j].consumers[newIndex];
+						S[j].consumers[newIndex] = 0;
 
-						if (S[j].l == 1)
+						if (S[j].level == 1)
 						{
-							P[j].consumers[species::n] = P[j].consumers[new_index];
-							P[j].consumers[new_index] = 0;
+							P[j].consumers[Species::nTotal] = P[j].consumers[newIndex];
+							P[j].consumers[newIndex] = 0;
 						}
-						// transmiting links to producer array if resource is a primary producer
+						// transmiting links to Producer array if resource is a isProducer Producer
 					}
 					// updating resources
 				}
-				// updating links of species n
+				// updating links of Species n
 
-				return new_index;
+				return newIndex;
 		}
-		// if new species is a primary producer, and not all species are producers
+		// if new Species is a isProducer Producer, and not all Species are Producers
 
 		else
 			{
-				return species::n;
+				return Species::nTotal;
 			}
-		// if new species is not a primary producer, or all species are producers
+		// if new Species is not a isProducer Producer, or all Species are Producers
 	}
 
-	void add_species(species S[], producer P[], int iteration)
+	void addSpecies(Species S[], Producer P[], int addAttempt)
 	{
-		bool primary = type();
-		int index = free_index(S, P, primary);
-		// Determining type and index of invasive species
+		bool isProducer = type();
+		int index = freeIndex(S, P, isProducer);
+		// Determining type and index of invasive Species
 
-		if (primary)
+		if (isProducer)
 		{
-			producer s(iteration);
+			Producer s(addAttempt);
 			P[index] = s;
 			S[index] = s;
-			// declaring species and putting it in arrays
+			// declaring Species and putting it in arrays
 			
-			if (species::n > n_min && add_consumer())
+			if (Species::nTotal > nMin && addConsumer())
 			{
 				bool link = 0;
-				link = add_link(S, P, index, random_int(producer::n1, species::n));
+				link = addLink(S, P, index, randomInt(Producer::nProducer, Species::nTotal));
 			}
 			// adding consumer if criteria fulfilled
 
-			P[index].print_parameters(index, S);
-			// printing paramters of new producer
+			P[index].printParameters(index);
+			// printing paramters of new Producer
 		}
-		// new species is a producer
+		// new Species is a Producer
 
 		else
 		{
-			species s(iteration);
+			Species s(addAttempt);
 			S[index] = s;
-			P[index].primary = 0;
-			// declaring species and putting it in array
+			P[index].isProducer = 0;
+			// declaring Species and putting it in array
 
 			bool link = 0;
 			while (!link)
 			{
-				link = add_link(S, P, random_int(0, index), index);
+				link = addLink(S, P, randomInt(0, index), index);
 			}
 			// adding resource
 
 			link = 0;
-			if (species::n > n_min && add_second_resource())
+			if (Species::nTotal > nMin && addSecondResource())
 			{
 				while (!link)
 				{
-					link = add_link(S, P, random_int(0, index), index);
+					link = addLink(S, P, randomInt(0, index), index);
 				}
 			}
 			// adding second resource if criteria fulfilled
 
 			link = 0;
-			if (species::n >= n_min && add_consumer())
+			if (Species::nTotal >= nMin && addConsumer())
 			{
 				double max_level = 0;
-				for (int j = 0; j < species::n; j++)
+				for (int j = 0; j < Species::nTotal; j++)
 				{
 					if (S[index].resources[j] > 0)
 					{
-						if (S[j].l > max_level)
+						if (S[j].level > max_level)
 						{
-							max_level = S[j].l + 1;
+							max_level = S[j].level + 1;
 						}
 					}
 				}
 				// finding highest level of resources
 
-				int consumer = random_int(0, index);
-				if (S[consumer].l > max_level)
+				int consumer = randomInt(0, index);
+				if (S[consumer].level > max_level)
 				{
-					link = add_link(S, P, index, consumer);
+					link = addLink(S, P, index, consumer);
 				}
 				// adding consumer if criteria fulfilled
 				
 			}
 			// adding consumer if criteria fulfilled
 
-			S[index].print_parameters(index, S);
-			// printing species parameters
+			S[index].printParameters(index);
+			// printing Species parameters
 		}
-		// new species is not a producer
+		// new Species is not a Producer
 	}
 
-	void remove_species(species S[], producer P[], int index)
+	void removeSpecies(Species S[], Producer P[], int index)
 	{
-		if (index >= species::n)
+		if (index >= Species::nTotal)
 		{
-			cout << "Error: this species does not exist" << endl << endl;
+			cout << "Error: this Species does not exist" << endl << endl;
 		}
-		// if species at index "index" doesn't exist
+		// if Species at index "index" doesn't exist
 
 		else
 		{
-		//	UPDATING NUMBER OF SPECIES
-			species::n--;
-			if (S[index].primary) { producer::n1--; }
+		//	UPDATING NUMBER OF Species
+			Species::nTotal--;
+			if (S[index].isProducer) { Producer::nProducer--; }
 
 		//	SETTING ALL PARAMETERS TO ZERO
-			P[index].k = 0;
-			P[index].a = S[index].a = 0;
-			P[index].S = S[index].S = 0;
+			P[index].growth = 0;
+			P[index].decay = S[index].decay = 0;
+			P[index].density = S[index].density = 0;
 			P[index].dS = S[index].dS = 0;
-			P[index].l = S[index].l = -1;
+			P[index].level = S[index].level = -1;
 
 		//	SETTING ALL INTERACTIONS TO ZERO
-			remove_all_links(S, P, index);
+			removeAllLinks(S, P, index);
 
-		//	UPDATING INDICES OF OTHER SPECIES
+		//	UPDATING INDICES OF OTHER Species
 			
-			if (index < producer::n1)
+			if (index < Producer::nProducer)
 			{
-				S[index] = S[producer::n1];
-				P[index] = P[producer::n1];
-				// moving last producer to empty index
+				S[index] = S[Producer::nProducer];
+				P[index] = P[Producer::nProducer];
+				cout << "Species " << Producer::nProducer << " replaced Species " << index << " in the array.\n";
+				// moving last Producer to empty index
 
-				for (int j = 0; j < N; j++)
+				for (int j = 0; j < nMAX; j++)
 				{
-					if (S[producer::n1].consumers[j] != 0)
+					if (S[Producer::nProducer].consumers[j] != 0)
 					{
-						S[j].resources[index] = S[j].resources[producer::n1];
-						S[j].resources[producer::n1] = 0;
+						S[j].resources[index] = S[j].resources[Producer::nProducer];
+						S[j].resources[Producer::nProducer] = 0;
 					}
 				}
 				// moving links of consumers
+				index = Producer::nProducer;
 			}
-			// producers
+			// Producers
 			
-			if (index != species::n)
+			if (index != Species::nTotal)
 			{
-				S[index] = S[species::n];
-				// moving last species to empty index
+				S[index] = S[Species::nTotal];
+				cout << "Species " << Species::nTotal << " replaced Species " << index << " in the array.\n";
+				// moving last Species to empty index
 
-				for (int j = 0; j < N; j++)
+				for (int j = 0; j < nMAX; j++)
 				{
-					if (S[species::n].consumers[j] != 0)
+					if (S[Species::nTotal].consumers[j] != 0)
 					{
-						S[j].resources[index] = S[j].resources[species::n];
-						S[j].resources[species::n] = 0;
+						S[j].resources[index] = S[j].resources[Species::nTotal];
+						S[j].resources[Species::nTotal] = 0;
 					}
 					// moving consumers
 
-					else if (S[species::n].resources[j] != 0)
+					else if (S[Species::nTotal].resources[j] != 0)
 					{
-						S[j].consumers[index] = S[j].consumers[species::n];
-						S[j].consumers[species::n] = 0;
+						S[j].consumers[index] = S[j].consumers[Species::nTotal];
+						S[j].consumers[Species::nTotal] = 0;
 
-						if (S[j].primary)
+						if (S[j].isProducer)
 						{
 							P[j].consumers[index] = S[j].consumers[index];
-							P[j].consumers[species::n] = 0;
+							P[j].consumers[Species::nTotal] = 0;
 						}
-						// transmitting links to producer array if resource is a primary producer
+						// transmitting links to Producer array if resource is a isProducer Producer
 					}
 					// moving resources
 				}
 				// moving links of resources and consumers
 			}
-			// other species
+			// other Species
 
 		//	REMOVING LAST ARRAY ELEMENTS
-			species s;
-			producer p;
+			Species s;
+			Producer p;
 			P[index] = p;
-			S[species::n] = s;
-			P[species::n] = p;
-			// using default constructors to remove species at last active indices without affecting counters
+			S[Species::nTotal] = s;
+			P[Species::nTotal] = p;
+			// using default constructors to remove Species at last active indices without affecting counters
 		}
-		// if species does exist
+		// if Species does exist
+
+		/*for (int i = 0; i < Species::nTotal; i++)
+		{
+			S[i].print_parameters(i, S);
+		}*/
 	}
 	
-	void reinitializing(species S[], species S_copy[], producer P[], producer P_copy[])
+	/*
+	void reinitializing(Species S[], Species S_copy[], Producer P[], Producer P_copy[])
 	{
 		for (int i = N - 1; i = 0; i--)
 		{
-			remove_species(S, P, i);
+			remove_Species(S, P, i);
 		}
-		// removing all species
+		// removing all Species
 
 		for (int i = 0; i < N; i++)
 		{
 			S[i] = S_copy[i];
 			P[i] = P_copy[i];
 		}
-		// reinitializing last iteration
+		// reinitializing last addAttempt
 	}
-
+	*/
 
 //	COMPUTING DERIVATIVES
-	double available_nutrients(producer P[])
+	double availableNutrients(Producer P[])
 	{
 		double sum = 1;
 		// initial amount of nutrients
 
-		for (int i = 0; i < producer::n1; i++)
+		for (int i = 0; i < Producer::nProducer; i++)
 		{
-			sum -= P[i].S;
+			sum -= P[i].density;
 		}
-		// removing amount of nutrients consumed by the producers
+		// removing amount of nutrients consumed by the Producers
 
 		return sum;
 	}
 
-	double strengthen(species S[], int index)
+	double strengthen(Species S[], int index)
 	{
 		double sum = 0;
-		for (int j = 0; j < species::n; j++)
+		for (int j = 0; j < Species::nTotal; j++)
 		{
-			sum += S[index].resources[j] * S[j].S;
+			sum += S[index].resources[j] * S[j].density;
 		}
-		// computing how much species is strengthened when consuming its resources
+		// computing how much Species is strengthened when consuming its resources
 
 		return sum;
 	}
 
-	double weaken(species S[], int index)
+	double weaken(Species S[], int index)
 	{
 		double sum = 0;
-		for (int j = 0; j < species::n; j++)
+		for (int j = 0; j < Species::nTotal; j++)
 		{
-			sum += S[index].consumers[j] * S[j].S;
+			sum += S[index].consumers[j] * S[j].density;
 		}
-		// computing how much species is hurt when consumed by its consumers
+		// computing how much Species is hurt when consumed by its consumers
 
 		return sum;
 	}
 
-	void derivatives(species S[], producer P[])
+	void derivatives(Species S[], Producer P[])
 	{
-		double nutrients = available_nutrients(P);
+		double nutrients = availableNutrients(P);
 
-		for (int i = 0; i < producer::n1; i++)
+		for (int i = 0; i < Producer::nProducer; i++)
 		{
 			P[i].derivative(nutrients, weaken(S, i));
 			S[i].dS = P[i].dS;
 		}
-		// computing derivatives of producers
+		// computing derivatives of Producers
 
-		for (int i = producer::n1; i < species::n; i++)
+		for (int i = Producer::nProducer; i < Species::nTotal; i++)
 		{
 			S[i].derivative(strengthen(S, i), weaken(S, i));
 		}
-		// computing derivatives of other species
+		// computing derivatives of other Species
 	}
 
 

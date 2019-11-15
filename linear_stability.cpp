@@ -3,59 +3,60 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <algorithm>
 
 
 
 //	COMPUTING STEADY STATES
-	MatrixXd initR(MatrixXd R, species S[], producer P[])
+	MatrixXd initR(MatrixXd R, Species S[], Producer P[])
 	{
 		int i, j, k;
 		// i - row number, j - column number
 
-		for (i = 0; i < producer::n1; i++)
+		for (i = 0; i < Producer::nProducer; i++)
 		{
-			for (j = 0; j < producer::n1; j++)
+			for (j = 0; j < Producer::nProducer; j++)
 			{
 				R(i, j) = 1;								
 				//cout << "R(" << i << "," << j << "): " << R(i, j) << endl;
 			}
-			// producer x producer entries, n1 x n1
+			// Producer x Producer entries, nProducer x nProducer
 
-			for (k = producer::n1; k < species::n; k++)
+			for (k = Producer::nProducer; k < Species::nTotal; k++)
 			{
-				R(i, k) = P[i].consumers[k] / P[i].k;
+				R(i, k) = P[i].consumers[k] / P[i].growth;
 				//cout << "R(" << i << "," << k << "): " << R(i, k) << endl;
 			}
-			// producer x species entries, n1 x (N - n1)
+			// Producer x Species entries, nProducer x (N - nProducer)
 		}
-		// filling rows of producers, n1 x N
+		// filling rows of Producers, nProducer x N
 
-		for (k = producer::n1; k < species::n; k++)
+		for (k = Producer::nProducer; k < Species::nTotal; k++)
 		{
-			for (j = 0; j < species::n; j++)
+			for (j = 0; j < Species::nTotal; j++)
 			{
 				R(k, j) = S[k].resources[j] - S[k].consumers[j];
 				//cout << "R(" << k << "," << j << "): " << R(k, j) << endl;
 			}
 		}
-		// filling rows of species, (N - n1) x N (row (n1 + 1) to N)
+		// filling rows of Species, (N - nProducer) x N (row (nProducer + 1) to N)
 
 		return R;
 	}
 
-	VectorXd initK(VectorXd K, species S[], producer P[])
+	VectorXd initK(VectorXd K, Species S[], Producer P[])
 	{
-		for (int i = 0; i < producer::n1; i++)
+		for (int i = 0; i < Producer::nProducer; i++)
 		{
-			K(i) = (P[i].k - P[i].a) / P[i].k;
+			K(i) = (P[i].growth - P[i].decay) / P[i].growth;
 		}
-		// filling entries of producers
+		// filling entries of Producers
 
-		for (int k = producer::n1; k < species::n; k++)
+		for (int k = Producer::nProducer; k < Species::nTotal; k++)
 		{
-			K(k) = S[k].a;
+			K(k) = S[k].decay;
 		}
-		// filling entries of species
+		// filling entries of Species
 
 		return K;
 	}
@@ -68,7 +69,7 @@
 		int S_positive = 0;
 		// counter
 
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			if (S(i) > epsilon)
 			{
@@ -77,18 +78,18 @@
 		}
 		// counting
 
-		if (S_positive == species::n) { return true; }
-		// if all species has a positive steady state
+		if (S_positive == Species::nTotal) { return true; }
+		// if all Species has a positive steady state
 
 		else { return false; }
 	}
 
-	bool negative_real_values(VectorXcd eigenvalues)
+	bool negativeRealValues(VectorXcd eigenvalues)
 	{
 		int S_stable = 0;
 		// counter 
 
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			if (eigenvalues(i).real() < 0)
 			{
@@ -97,8 +98,8 @@
 		}
 		// counting
 
-		if (S_stable == species::n) { return true; }
-		// if all species have negative real parts
+		if (S_stable == Species::nTotal) { return true; }
+		// if all Species have negative real parts
 
 		else { return false; }
 	}
@@ -106,77 +107,77 @@
 
 
 //	INITIALIZING JACOBIAN
-	void set_densities_steady(double steady_states[], species S_temp[], producer P_temp[])
+	void setDensitiesSteady(double steadyStates[], Species S_temp[], Producer P_temp[])
 	{
 		int i;
-		for (i = 0; i < producer::n1; i++)
+		for (i = 0; i < Producer::nProducer; i++)
 		{
-			S_temp[i].S = steady_states[i];
-			P_temp[i].S = S_temp[i].S;
+			S_temp[i].density = steadyStates[i];
+			P_temp[i].density = S_temp[i].density;
 		}
-		// densities of producers
+		// densities of Producers
 
-		for (i = producer::n1; i < species::n; i++)
+		for (i = Producer::nProducer; i < Species::nTotal; i++)
 		{
-			S_temp[i].S = steady_states[i];
+			S_temp[i].density = steadyStates[i];
 		}
-		// densities of other species
+		// densities of other Species
 	}
 
-	MatrixXd Jacobian(MatrixXd J, species S[], producer P[])
+	MatrixXd Jacobian(MatrixXd J, Species S[], Producer P[])
 	{
 		int i, j, k;
-		double nutrients = available_nutrients(P);
+		double nutrients = availableNutrients(P);
 
-		for (i = 0; i < producer::n1; i++)
+		for (i = 0; i < Producer::nProducer; i++)
 		{
-			for (j = 0; j < producer::n1; j++)
+			for (j = 0; j < Producer::nProducer; j++)
 			{
 				if (i == j)
 				{
-					J(i, i) = P[i].k * (nutrients - P[i].S) - P[i].a - weaken(S, i);
+					J(i, i) = P[i].growth * (nutrients - P[i].density) - P[i].decay - weaken(S, i);
 					//cout << "J(" << i << "," << j << "): " << J(i, j) << endl;
 				}
 				// filling diagonal entries
 
 				else
 				{
-					J(i, j) = -P[i].k * P[i].S;
+					J(i, j) = -P[i].growth * P[i].density;
 					//cout << "J(" << i << "," << j << "): " << J(i, j) << endl;
 				}
 				// filling non-diagonal entries
 			}
-			// producer x producer, n1 x n1
+			// Producer x Producer, nProducer x nProducer
 
-			for (k = producer::n1; k < species::n; k++)
+			for (k = Producer::nProducer; k < Species::nTotal; k++)
 			{
-				J(i, k) = -P[i].consumers[k] * P[i].S;
+				J(i, k) = -P[i].consumers[k] * P[i].density;
 				//cout << "J(" << i << "," << k << "): " << J(i, k) << endl;
 			}
-			// producer x species, n1 x(N - n1)
+			// Producer x Species, nProducer x(N - nProducer)
 		}
-		// filling rows of producers, n1 x N
+		// filling rows of Producers, nProducer x N
 
-		for (k = producer::n1; k < species::n; k++)
+		for (k = Producer::nProducer; k < Species::nTotal; k++)
 		{
-			for (j = 0; j < species::n; j++)
+			for (j = 0; j < Species::nTotal; j++)
 			{
 				if (k == j)
 				{
-					J(k, k) = strengthen(S, k) - weaken(S, k) - S[k].a;
+					J(k, k) = strengthen(S, k) - weaken(S, k) - S[k].decay;
 					//cout << "J(" << k << "," << j << "): " << J(k, j) << endl;
 				}
 				// filling diagonal entries
 
 				else
 				{
-					J(k, j) = (S[k].resources[j] - S[k].consumers[j]) * S[k].S;
+					J(k, j) = (S[k].resources[j] - S[k].consumers[j]) * S[k].density;
 					//cout << "J(" << k << "," << j << "): " << J(k, j) << endl;
 				}
 				// filling non-diagonal entries
 			}
 		}
-		// filling rows of species, (N - n1) x N (row (n1 + 1) to N)
+		// filling rows of Species, (N - nProducer) x N (row (nProducer + 1) to N)
 
 		return J;
 	}
@@ -184,18 +185,18 @@
 
 
 //	SAVING PARAMETERS
-	void save_complex(VectorXcd eigenvalues, ofstream& file, int iteration)
+	void saveEigenvalues(VectorXcd eigenvalues, ofstream& file, int addAttempt)
 	{
-		file << iteration << " " << species::n << " ";
-		// iteration and number of species
+		file << addAttempt << " " << Species::nTotal << " ";
+		// addAttempt and number of Species
 
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			file << eigenvalues(i).real() << " " << eigenvalues(i).imag() << " ";
 		}
-		// eigenvalues of all species in food webs
+		// eigenvalues of all Species in food webs
 
-		for (int i = species::n; i < N; i++)
+		for (int i = Species::nTotal; i < nMAX; i++)
 		{
 			file << 0 << " " << 0 << " ";
 		}
@@ -204,157 +205,157 @@
 		file << endl;
 	}
 
-	void save_parameters(species S[], producer P[], ofstream& sfile, ofstream& bfile, int iteration)
+	void saveParameters(Species S[], Producer P[], ofstream& sFile, ofstream& pFile, int addAttempt)
 	{
-		for (int i = 0; i < producer::n1; i++)
+		// saving parameters of Producers
+		for (int i = 0; i < Producer::nProducer; i++)
 		{
-			bfile << iteration << " ";
-			// iteration
+			pFile << addAttempt << " ";
+			// addAttempt
 
-			bfile << i << " " << P[i].added_i << " " << P[i].l << " " << P[i].S << " " << P[i].k << " " << P[i].a << " ";
-			// index - iteration of invasion - level - final density - growth rate - decay rate
+			pFile << i << " " << P[i].addAttempt << " " << P[i].level << " " << P[i].density << " " << P[i].growth << " " << P[i].decay << " ";
+			// index - addAttempt of invasion - level - final density - growth rate - decay rate
 
-			for (int k = 0; k < N; k++)
+			for (int k = 0; k < nMAX; k++)
 			{
-				bfile << k << " " << P[i].consumers[k] << " ";
+				pFile << k << " " << P[i].consumers[k] << " ";
 			}
-			// index of other species - interaction strength
+			// index of other Species - interaction strength
 
-			bfile << endl;
+			pFile << endl;
 		}
-		// saving parameters of producers
 
-		for (int k = producer::n1; k < species::n; k++)
+		// saving parameters of Species
+		for (int k = Producer::nProducer; k < Species::nTotal; k++)
 		{
-			sfile << iteration << " ";
-			// iteration
+			sFile << addAttempt << " ";
+			// addAttempt
 
-			sfile << k << " " << S[k].added_i << " " << S[k].l << " " << S[k].S << " " << S[k].a << " ";
-			// index - iteration of invasion - level - final density - decay rate
+			sFile << k << " " << S[k].addAttempt << " " << S[k].level << " " << S[k].density << " " << S[k].decay << " ";
+			// index - addAttempt of invasion - level - final density - decay rate
 
 			
-			for (int j = 0; j < N; j++)
+			for (int j = 0; j < nMAX; j++)
 			{
-				sfile << j << " " << S[k].consumers[j] << " " << S[k].resources[j] << " ";
+				sFile << j << " " << S[k].consumers[j] << " " << S[k].resources[j] << " ";
 			}
-			// index of other species - interaction strength(as resource) - interaction strength(as consumer)
+			// index of other Species - interaction strength(as resource) - interaction strength(as consumer)
 
-			sfile << endl;
+			sFile << endl;
 		}
-		// saving parameters of species
 	}
 
 
 
 //	INVESTIGATING LINEAR STABILITY
-	void check_for_steady_solution(species S[], producer P[], double steady_states[], ofstream& stab_file, ofstream& unstab_file, int iter)
+	void checkFeasibility(Species S[], Producer P[], double steadyStates[], ofstream& stabEigen, ofstream& unstabEigen, int addAttempt)
 	{
 	//	COMPUTING S* = R^(-1)*k
-		MatrixXd R(species::n, species::n);
-		VectorXd K(species::n);
-		VectorXd Ssteady(species::n);
 		// declaring vectors and matrices
+		MatrixXd R(Species::nTotal, Species::nTotal);
+		VectorXd K(Species::nTotal);
+		VectorXd Ssteady(Species::nTotal);
 
+		// initializing R and K
 		R = initR(R, S, P);				//cout << R << endl;
 		K = initK(K, S, P);				//cout << K << endl;
-		// initializing R and K
 
-		Ssteady = R.inverse() * K;
 		// computing steady states
+		Ssteady = R.inverse() * K;
+		double hurra[5] = { 3.11, 4.3, 5, 1, 2 };
+		std::fill_n(steadyStates, nMAX, 0);
+		std::copy_n(Ssteady(0), Species::nTotal, steadyStates);
 
-		for (int i = 0; i < species::n; i++)
+		cout << "checking STEADY states \n";
+		for (int i = 0; i < Species::nTotal; i++)
 		{
-			steady_states[i] = Ssteady(i);
+			std::cout << steadyStates[i] << endl;
+			std::cout << Ssteady(i) << endl;
+			//cout << "print";
+		}
+		
+
+		
+		for (int i = 0; i < Species::nTotal; i++)
+		{
+			steadyStates[i] = Ssteady(i);
 		}
 		// saving steady states
 
-		for (int i = species::n; i < N; i++)
+		for (int i = Species::nTotal; i < nMAX; i++)
 		{
-			steady_states[i] = 0;
+			steadyStates[i] = 0;
 		}
 		// zeroes for empty entries in S[] and P[]
-
+		
 
 	//	CHECKING IF SYSTEM IS FEASIBLE AND LINEARLY STABLE
 		if (feasible(Ssteady))
 		{
-			foodweb::feasible = true;
-			// updating food web
+			// updating feasibility of food web
+			FoodWeb::feasible = true;
 
-			check_for_linear_stability(S, P, steady_states, stab_file, unstab_file, iter);
 			// checking for linear stability
+			checkLinearStability(S, P, steadyStates, stabEigen, unstabEigen, addAttempt);
 
+			// printing steady states
 			cout << "The system does have a feasible steady state!\n";
-			cout << "---------------\n Steady states: \n---------------\n" << Ssteady << "\n---------------\n\n";
-			// printing		
+			cout << "---------------\n Steady states: \n---------------\n";
+			cout << Ssteady << "\n---------------\n\n";		
 		}
-		// if feasible
 
 		else
 		{
-			foodweb::feasible = false;
-			foodweb::stable = false;
-			// updating food web
+			// updating feasibility and stability of food web
+			FoodWeb::feasible = false;
+			FoodWeb::stable = false;
 
-			cout << "The system does not have a feasible steady state\n" << endl;
-			// printing
+			// printing feasibility
+			cout << "The system does not have a feasible steady state\n\n";
 		}
-		// if unfeasible
 	}
 
-	void check_for_linear_stability(species S[], producer P[], double steady_states[], ofstream& stab_file, ofstream& unstab_file, int iter)
+	void checkLinearStability(Species S[], Producer P[], double steadyStates[], ofstream& stabEigen, ofstream& unstabEigen, int addAttempt)
 	{
 	//	INITIALIZING
-		MatrixXd J(species::n, species::n);
-		VectorXcd eigenvalues(species::n);
-		species S_temp[N];
-		producer P_temp[N];
 		// declaring matrix and arrays
+		MatrixXd J(Species::nTotal, Species::nTotal);
+		VectorXcd eigenvalues(Species::nTotal);
+		Species S_temp[nMAX];
+		Producer P_temp[nMAX];
 
-		for (int i = 0; i < N; i++)
-		{
-			P_temp[i] = P[i];
-			S_temp[i] = S[i];
-		}
-		// inilializing temporary species arrays
-
-		set_densities_steady(steady_states, S_temp, P_temp);
-		// Setting temporary densities steady
+		// initializing temporary species arrays and setting density to steady state
+		std::copy_n(P, nMAX, P_temp);
+		std::copy_n(S, nMAX, S_temp);
+		setDensitiesSteady(steadyStates, S_temp, P_temp);
 
 		
 	//	COMPUTING JACOBIAN AND EIGENVALUES
-		J = Jacobian(J, S_temp, P_temp);
 		// initializing Jacobian
+		J = Jacobian(J, S_temp, P_temp);
 
+		// computing eigenvalues of Jacobian
 		EigenSolver<MatrixXd> es(J);
 		eigenvalues = es.eigenvalues();
-		// computing eigenvalues of Jacobian
 
 		
 	//	CHECKING LINEAR STABILITY
-		if (negative_real_values(eigenvalues))
+		if (negativeRealValues(eigenvalues))
 		{
-			foodweb::stable = true;
-			// updating food web
+			// updating stability of food web
+			FoodWeb::stable = true;
 
-			cout << "The steady states are linearly stable!\n" << endl;
-			// printing
-
-			save_complex(eigenvalues, stab_file, iter);
-			// saving eigenvalues
+			cout << "The steady states are linearly stable!\n\n";
+			saveEigenvalues(eigenvalues, stabEigen, addAttempt);
 		}
 		// if linearly stable
 
 		else
 		{
-			foodweb::stable = false;
-			// updating food web
+			// updating stability of food web
+			FoodWeb::stable = false;
 
-			cout << "The steady states are not linearly stable.\n" << endl;
-			// printing
-
-			save_complex(eigenvalues, unstab_file, iter);
-			// saving eigenvalues
+			cout << "The steady states are not linearly stable.\n\n";
+			saveEigenvalues(eigenvalues, unstabEigen, addAttempt);
 		}
-		// if linearly unstable
 	}

@@ -1,63 +1,47 @@
 #pragma once
-/*
-Constants and distributions for controlling the evolution of the food web. 
-*/
+/* CONSTANTS AND DISTRIBUTIONS CONTROLLING EVOLUTION OF FOOD WEB*/
 
 
-//	CONSTANTS
-	const double initial_density = 1e-10;
-	const double default_beta = .75;
-	const double default_k = 1;
-	// default species parameters
+// CONSTANTS
+// default Species parameters
+const double initialDensity = 1e-10;
+const double defaultBeta = .75;
+const double defaultKappa = 1;
 
-	const int n_min = 3;
-	// lower limit on food web size
-	// allowing a second link in food webs larger than n_two_links
+// default threshold
+const double epsilon = 1e-14;
 
-	const double epsilon = 1e-14;
-	// threshold/uncertainty on data
-
+// lower limit on Species richness before allowing Species with two resources
+const int nMin = 3;
 
 
-//	DISTRIBUTIONS
-	double random_double(double min, double max);
-	// returns random double in [min, max]
+//DISTRIBUTIONS
+// random numbers in [min, max]
+double randomDouble(double min, double max);
+int randomInt(int min, int max);
 
-	int random_int(int min, int max);
-	// returns random integer in [min, max]
+// returning true with probability a/b
+bool ratio(int a, int b);
 
-	bool ratio(int a, int b);
-	// returning true with probability a/b
-
-	double normal_cdf(double mu, double sigma, double x);
-	// Cumulative density of normal distribution
-	// Not used in final project
+// Cumulative density of normal distribution
+double normalCDF(double mu, double sigma, double x);
 
 
-
-//	SPECIES PARAMETER DISTRIUTIONS
-	double k();
-	// growth rate
-	
-	double alpha();
-	// decay rate
-	
-	double eta();
-	// interaction strength
-
-	double beta();
-	// reproduction efficiency
-
-	bool type();
-	// determines type of invasive species
-	// producer if true, species at l>1 if false
+// Species PARAMETER DISTRIUTIONS
+double kappa();		// growth rate
+double alpha();		// decay rate
+double eta();		// interaction strength
+double beta();		// reproduction efficiency
+			
+bool type();		// determines type of invasive Species: 
+					// Producer if true, Species at l>1 if false
 
 
+// LINK DISTRIBUTIONS
+// probability of Species having two preys
+bool addSecondResource();
 
-//	LINK DISTRIBUTIONS
-	bool add_second_resource();
-	// probability of species having two preys
+// determines if invasive Species should also establish link to consumer
+// not used in final project
+bool addConsumer();
 
-	bool add_consumer();
-	// determines if invasive species should also establish link to consumer
-	// not used in final project

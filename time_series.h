@@ -3,28 +3,25 @@
 Functions controlling evolution of food web
 */
 
-#include "species.h"
+#include "Species.h"
 #include <fstream>
 using namespace std;
 
 
-	void rk4(species S[], producer P[], double dt);
+	void RK4(Species S[], Producer P[], double dt);
 	// 4th order Runge-Kutta
 
-	double rkf45_dt(species S[], producer P[], double dt);
+	double RKF45(Species S[], Producer P[], double dt);
 	// addaptive timestep, 4th and 5th order Runge-Kutta-Fehlberg
 	
-	bool check_for_extinction(species S[], producer P[], double steady_states[], ofstream& stab_file, ofstream& unstab_file, ofstream& data, int iter);
-	// checking if a species has gone extinct
+	bool checkForExtinction(Species S[], Producer P[], double steadyStates[], ofstream& stabEigen, ofstream& unstabEigen, ofstream& webData, int addAttempt);
+	// checking if a Species has gone extinct
 
-	bool sustainable(species S[], producer P[], double steady_states[], ofstream& data, double t, int iter, bool rep_per);
+	bool steady(Species S[], Producer P[], double steadyStates[], ofstream& webData, double t, int iter, bool rep_per, int tries[]);
 	// checking if food web has reached the steady states, is periodic or chaotic
 
-	bool periodic(species S[], producer P[], int iter);
-	// checking if food web is periodic
-
-	bool decreasing(species S[], producer P[], int iter);
+	bool decreasing(Species S[], Producer P[], int tries[]);
 	// checking if food web is oscillating with damped oscillations
 
-	void time_series(species S[], producer P[], double steady_states[], ofstream& stab_file, ofstream& unstab_file, ofstream& data, int iter);
-	// numerically integrating foodweb
+	void timeSeries(Species S[], Producer P[], double steadyStates[], ofstream& stabEigen, ofstream& unstabEigen, ofstream& webData, int addAttempt);
+	// numerically integrating FoodWeb

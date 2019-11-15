@@ -2,117 +2,125 @@
 #include "distributions.h"
 #include <iostream>
 
-//	Declaring species
-	species::species()
+// Declaring species
+// default constructor
+Species::Species()
 	{
-		S = 0;
+		density = 0;
+		decay = 0;
+		level = -1;
 		dS = 0;
-		a = 0;
-		l = -1;
 
-		primary = 0;
-		added_i = -1;
+		isProducer = 0;
+		addAttempt = -1;
 	}
-	// default constructor
 
-	species::species(int j) : added_i(j)
+// constuctor
+Species::Species(int j) : addAttempt(j)
 	{
-		primary = 0;
-		n++;
+		density = initialDensity;
+		decay = alpha();
+		level = 0;
 
-		S = initial_density;
-		a = alpha();
-		l = 0;
+		isProducer = 0;
+		nTotal++;
 	}
-	// constuctor
 
-	species::~species()
+// destructor
+Species::~Species()
 	{
 
 	}
-	// destructor
 
 
-
-//	Declaring producer
-	producer::producer()
+// Declaring producer
+// default constructor
+Producer::Producer()
 	{
-		primary = 1;
-		k = 0;
-		l = -1;
-		added_i = -1;
-	}
-	// default constructo
+		growth = 0;
+		level = -1;
 
-	producer::producer(int j)
-	{
-		primary = 1;
-		added_i = j;
-		n1++;
-		n++;
-
-		l = 1;
-		S = initial_density;
-		k = k();
-		a = alpha();
-	}
-	// costructor
-
-	producer::~producer()
-	{
-
-	}
-	// destructor
-
-
-
-//	Time derivatives
-	void species::derivative(double strengthen, double weaken)
-	{
-		dS = S * (strengthen - weaken - a);
+		isProducer = 1;
+		addAttempt = -1;
 	}
 
-	void producer::derivative(double nutrients, double weaken)
+// constructor
+Producer::Producer(int j)
 	{
-		dS = S * (k*nutrients - a - weaken);
+		density = initialDensity;
+		growth = kappa();
+		decay = alpha();
+		level = 1;
+
+		isProducer = 1;
+		addAttempt = j;
+		nProducer++;
+		nTotal++;
+	}
+
+// destructor
+Producer::~Producer()
+	{
+
+	}
+
+
+// Time derivatives
+void Species::derivative(double strengthen, double weaken)
+	{
+		dS = density * (strengthen - weaken - decay);
+	}
+
+void Producer::derivative(double nutrients, double weaken)
+	{
+		dS = density * (growth * nutrients - decay - weaken);
 	}
 	
 
 
-//	Printing
-	void species::print_parameters(int index, species S_array[])
+// Printing
+void Species::printParameters(int index)
 	{
 		// Printing parameters
-		std::cout << "Species " << index << "\nAdded as #: " << added_i;
-		std::cout << "\ntrophic level: " << l << ":\ndensity ";
-		std::cout << S << "\nprimary: " << primary << "\na: " << a << std::endl;
-		
+		std::cout << "Species " << index;
+		std::cout << "\nAdded as #: " << addAttempt;
+		std::cout << "\ntrophic level: " << level;
+		std::cout << "\ndensity " << density;
+		//std::cout << "\nprimary: " << isProducer;
+		std::cout << "\na: " << decay;
+		std::cout << std::endl;
+
 		// Printing consumers
 		std::cout << "Predators:\n";
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			std::cout << i << ": " << consumers[i] << ", ";
 		}
 		
 		// Printing resources
 		std::cout << std::endl << "Preys:\n";
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			std::cout << i << ": " << resources[i] << ", ";
 		}
 		std::cout << std::endl << std::endl;
 	}
 
-	void producer::print_parameters(int index, species S_array[])
+void Producer::printParameters(int index)
 	{
 		// Printing parameters
-		std::cout << "Species " << index << "\nAdded as #: " << added_i;
-		std::cout << "\ntrophic level: " << l << " \ndensity: " << S;
-		std::cout << "\nprimary: " << primary << ":\nk: " << k << ":\na: " << a << std::endl;
+		std::cout << "Species " << index;
+		std::cout << "\nAdded as #: " << addAttempt;
+		std::cout << "\ntrophic level: " << level;
+		std::cout << " \ndensity: " << density;
+		//std::cout << "\nprimary: " << isProducer;
+		std::cout << ":\nk: " << growth;
+		std::cout << ":\na: " << decay;
+		std::cout << std::endl;
 
 		// Printing consumers
 		std::cout << "Predators:\n";
-		for (int i = 0; i < species::n; i++)
+		for (int i = 0; i < Species::nTotal; i++)
 		{
 			std::cout << i << ": " << consumers[i] << ", ";
 		}
@@ -120,15 +128,15 @@
 	}
 
 
-//	FOODWEB
-	foodweb::foodweb()
+// FOODWEB
+// contructor
+FoodWeb::FoodWeb()
 	{
 
 	}
-	// contructor
 
-	foodweb::~foodweb()
+// destructor
+FoodWeb::~FoodWeb()
 	{
 
 	}
-	// destructor
