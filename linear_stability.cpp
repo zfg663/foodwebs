@@ -6,7 +6,6 @@
 #include <algorithm>
 
 
-
 //	COMPUTING STEADY STATES
 	MatrixXd initR(MatrixXd R, Species S[], Producer P[])
 	{
@@ -263,15 +262,17 @@
 		// computing steady states
 		Ssteady = R.inverse() * K;
 		std::fill_n(steadyStates, nMAX, 0);
-		std::copy_n(Ssteady(0), Species::nTotal, steadyStates);
-
-		cout << "checking STEADY states \n";
-		for (int i = 0; i < Species::nTotal; i++)
-		{
-			std::cout << steadyStates[i] << endl;
-			std::cout << Ssteady(i) << endl;
-			//cout << "print";
+		for (int i=0; i<Species::nTotal; i++) {
+			steadyStates[i] = Ssteady(i);
 		}
+
+		//cout << "checking STEADY states \n";
+		//for (int i = 0; i < Species::nTotal; i++)
+		//{
+		//	std::cout << steadyStates[i] << endl;
+		//	std::cout << Ssteady(i) << endl;
+			//cout << "print";
+		//}
 		
 
 		
@@ -323,8 +324,10 @@
 		Producer P_temp[nMAX];
 
 		// initializing temporary species arrays and setting density to steady state
-		std::copy_n(P, nMAX, P_temp);
-		std::copy_n(S, nMAX, S_temp);
+		for (int i=0; i<nMAX; i++) {
+			P_temp[i] = P[i];
+			S_temp[i] = S[i];
+		}
 		setDensitiesSteady(steadyStates, S_temp, P_temp);
 
 		
