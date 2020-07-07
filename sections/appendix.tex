@@ -1,0 +1,36 @@
+
+\section{Analytical spectrum of 2-species food webs}
+\label{A:analytical}
+The only feasible 2-species food web contains one producer and one species consuming the producer. The steady states of this food web are 
+\begin{equation}
+    S_1^* = \frac{\alpha_2}{\beta\eta}, \:\:\:\:\:\:\:\:\:\:\:\: S_2^* = \frac{k}{\eta}\left( 1- \frac{\alpha_2}{\beta\eta} \right) - \frac{\alpha_1}{\eta} 
+    \label{Aeq:s*}
+\end{equation}
+for the producer and species, respectively. Here $\beta = \beta_{21}$ and $\eta = \eta_{21}$. Inserting this in eq. (\ref{eq:C}) and diagonalizing yields the eigenvalues 
+\begin{equation}
+    \lambda_{\pm} = -\frac{\alpha_2}{2\beta\eta}\pm \sqrt{\frac{\alpha_2^2}{(2\beta\eta)^2} + \frac{\alpha_2^2}{\beta\eta} + \left(\alpha_1 - 1 \right)\alpha_2}.
+    \label{Aeq:lambda_2}
+\end{equation}
+The food web is stable if the real parts of $\lambda_+$ and $\lamba_-$ are negative. Since all parameters are real, the square root in Eq. (\ref{Aeq:lambda_2}) can never be negative. The real part of $\lambda_-$ will therefore always be negative. $\mathcal{Re}(\lambda_+)$ is only positive if the square root is bigger than $\frac{\alpha_2}{2\beta\eta}$. After some basic algebraic operations on this criterion one obtains the following restriction on the combination of parameters for 
+\begin{equation}
+    1<\alpha_1 + \frac{\alpha_2}{\beta\eta}.
+    \label{Aeq:unstab}
+\end{equation}
+Eq. (\ref{Aeq:unstab}) is further restricted as feasibility of the food web requires the steady states of eq. (\ref{Aeq:s*}) to be positive.
+$S_1^*$ is always positive, but $S_2^*$ is only positive if $\beta\eta > \frac{\alpha_2}{1-\alpha_1}$. Inserting this in eq. (\ref{Aeq:unstab}) one obtains 
+\begin{equation}
+    1 < \alpha_1 + \frac{\alpha_2}{\beta\eta} < \alpha_1 + (1-\alpha_1) = 1.
+\end{equation}
+This condition can never be satisfied and consequently a feasible 2-species food web will always be stable.
+
+The eigenvalues are purely real if the square root of eq. (\ref{Aeq:unstab}) is bigger than or equal to zero. Again using some basic algebra this criterion transforms to 
+\begin{equation}
+    -(1 - \alpha_1)(\beta\eta)^2 + \alpha_2\beta\eta + \frac{\alpha_2}{4} \geq 0.
+    \label{eq:eta_real}
+\end{equation}
+This second order polynomial is zero when 
+\begin{equation}
+    % write this expression different?
+    \beta\eta_{\pm} = \gamma \pm \sqrt{\gamma^2 + \gamma}, \:\:\:\:\:\:\:\: \gamma = \frac{\alpha_2}{1-\alpha_1},
+\end{equation}
+and positive for $\beta\eta$ between the two roots. $\beta\eta_- < 0$ for all $\alpha_1, \alpha_2$. Accordingly, the eigenvalues are purely real if and only if $\beta\eta \leq \beta\eta_+$. 
