@@ -25,7 +25,7 @@ int main()
 	srand(2);
 
 //	FILES
-	ofstream stabEigen("eig_stab.txt");			// eigenvalues of linearly stable food web
+	ofstream stabEigen("eig_stab.txt");		// eigenvalues of linearly stable food web
 	ofstream ustabEigen("eig_unstab.txt");		// eigenvalues of linearly unstable food web
 	// data is saved as: iteration - number of Species - real - imaginary
 

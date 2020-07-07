@@ -3,7 +3,7 @@
 
 
 // CONSTANTS
-// default Species parameters
+// default species parameters
 const double initialDensity = 1e-10;
 const double defaultBeta = .75;
 const double defaultKappa = 1;
@@ -11,12 +11,12 @@ const double defaultKappa = 1;
 // default threshold
 const double epsilon = 1e-14;
 
-// lower limit on Species richness before allowing Species with two resources
+// lower limit on species richness before allowing species with two resources
 const int nMin = 3;
 
 
 //DISTRIBUTIONS
-// random numbers in [min, max]
+// random numbers in [min, max)
 double randomDouble(double min, double max);
 int randomInt(int min, int max);
 
@@ -34,7 +34,7 @@ double eta();		// interaction strength
 double beta();		// reproduction efficiency
 			
 bool type();		// determines type of invasive Species: 
-					// Producer if true, Species at l>1 if false
+			// Producer if true, Species at l>1 if false
 
 
 // LINK DISTRIBUTIONS

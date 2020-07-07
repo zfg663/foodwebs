@@ -8,9 +8,9 @@ const int nMAX = 20;					// maximal number of species allowed in food web
 class Species
 {
 public:
-	Species();						// default constructor
-	Species(int added_i);			// constructor
-	~Species();						// destructor
+	Species();					// default constructor
+	Species(int added_i);				// constructor
+	~Species();					// destructor
 
 //	counters
 	static int nTotal;				// total number of species
@@ -18,11 +18,11 @@ public:
 	int addAttempt;					// addition attempt of the species
 
 //	parameters
-	double density, decay;			// time-derivative, density, decay rate
+	double density, decay;				// time-derivative, density, decay rate
 	double dS;
 	double level;					// trophic level
-	double consumers[nMAX] = { 0 };	// array of interactions (with the species as resource)
-	double resources[nMAX] = { 0 };	// array of interactions (with the species as consumer)
+	double consumers[nMAX] = { 0 };			// array of interactions (with the species as resource)
+	double resources[nMAX] = { 0 };			// array of interactions (with the species as consumer)
 									/* The array entry at index i corresponds to the species at index i in the 
 									   species array. If the species doesn't have an interaction with species i,
 									   the corresponding entries are 0*/
@@ -39,8 +39,8 @@ public:
 class Producer : public Species
 {
 public:
-	Producer();						// default constructor
-	Producer(int added_i);			// constructor
+	Producer();					// default constructor
+	Producer(int added_i);				// constructor
 	~Producer();					// destructor
 
 //	counters

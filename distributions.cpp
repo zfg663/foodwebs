@@ -11,13 +11,14 @@ double randomDouble(double min, double max)
 
 int randomInt(int min, int max)
 	{
-		return min + (rand() * (int)(max - min + 1) / RAND_MAX);
+		return min + (rand() * (int)(max - min) / RAND_MAX);
 	}
 
 bool ratio(int a, int b)
 	{
-		int number = randomInt(1, b);
-		if(number <= a) { return true; }
+		double p = (double)(a/b);
+		double r = randomDouble(0,1);
+		if (r < p) { return true; }
 		else { return false; }
 	}
 
@@ -51,7 +52,7 @@ double beta()
 	}
 
 bool type()
-	{
+	{		
 		return ratio(1,3);
 	}
 
@@ -67,4 +68,5 @@ bool addConsumer()
 	{
 		return false;
 	}
+
 

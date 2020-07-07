@@ -3,7 +3,7 @@
 Functions for computing feasibility and linear stability
 */
 
-#include "Species.h"
+#include "species.h"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 using namespace Eigen;
@@ -28,12 +28,12 @@ using namespace std;
 	// checking if all eigenvalues have negative real parts
 
 
-//	INITIALIZING JACOBIAN
+//	INITIALIZING COMMUNITY MATRIX
 	void setDensitiesSteady(double steadyStates[], Species S_temp[], Producer P_temp[]);
 	// set dentities to steady densities
 
-	MatrixXd Jacobian(MatrixXd J, Species S[], Producer P[]);
-	// initializing Jacobian
+	MatrixXd Community(MatrixXd C, Species S[], Producer P[]);
+	// initializing community matrix
 
 
 //	SAVING PARAMETERS

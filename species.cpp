@@ -1,5 +1,6 @@
 #include "species.h"
 #include "distributions.h"
+#include "distributions.cpp"
 #include <iostream>
 
 // Declaring species
@@ -73,7 +74,7 @@ void Species::derivative(double strengthen, double weaken)
 
 void Producer::derivative(double nutrients, double weaken)
 	{
-		dS = density * (growth * nutrients - decay - weaken);
+		dS = density * (growth*nutrients - decay - weaken);
 	}
 	
 
@@ -140,3 +141,4 @@ FoodWeb::~FoodWeb()
 	{
 
 	}
+

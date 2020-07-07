@@ -3,7 +3,7 @@
 Functions controlling evolution of food web
 */
 
-#include "Species.h"
+#include "species.h"
 #include <fstream>
 using namespace std;
 

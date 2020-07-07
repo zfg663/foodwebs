@@ -50,43 +50,47 @@ using namespace std;
 		}
 	}
 
-	void removeLink(Species S[], Producer P[], int resource, int consumer)
+
+	void removeLinks(Species S[], Producer P[], int index)
 	{
-		if (S[resource].consumers[consumer] == 0 && S[consumer].resources[resource] == 0)
+		if (S[index].isProducer) 
 		{
-			// cout << "Error: these Species are not linked in this direction." << endl;
-		}
-		else if (S[resource].consumers[consumer] == 0 && S[consumer].resources[resource] != 0 || S[resource].consumers[consumer] != 0 && S[consumer].resources[resource] == 0)
-		{
-			cout << "Error: mismatched link." << endl;
-		}
-		// checking if there is a link
-
-		else
-		{
-			S[resource].consumers[consumer] = 0;
-			S[consumer].resources[resource] = 0;
-			// setting interaction parameters to zero
-
-			if (S[resource].isProducer)
+			for (int i=Producer::nProducer; i<Species::nTotal; i++) 
 			{
-				P[resource].consumers[consumer] = S[resource].consumers[consumer];
+				if (S[index].consumers[i]*S[i].resources[index] == 0 && S[index].consumers[i]+S[i].resources[index] != 0) { cout << "Error: mismatched link." << endl; }
+				// checking for errondous links
+
+				else {
+					S[index].consumers[i] = 0;
+					P[index].consumers[i] = 0;
+					S[i].resources[index] = 0;
+				}
+				// removing all consumers
 			}
 		}
-	}
 
-	void removeAllLinks(Species S[], Producer P[], int index)
-	{
-		for (int i = 0; i <= Species::nTotal; i++)
+		else 
 		{
-			removeLink(S, P, index, i);
-			// removing consumers
-
-			if (!S[index].isProducer)
+			for (int i=0; i<Species::nTotal; i++) 
 			{
-				removeLink(S, P, i, index);
+				if (S[i].consumers[index]*S[index].resources[i]==0 && S[i].consumers[index]+S[index].resources[i]!=0) { cout << "Error: mismatched link." << endl; }
+				if (S[index].consumers[i]*S[i].resources[index]==0 && S[index].consumers[i]+S[i].resources[index]!=0) { cout << "Error: mismatched link." << endl; }
+				// checking for errendous links
+
+				else {
+					S[index].consumers[i] = 0;
+					S[i].resources[index] = 0;
+				}
+				// remving all consumers
+			
+				else 
+				{
+					S[i].consumers[index] = 0;
+					P[i].consumers[index] = 0;
+					S[index].resources[i] = 0;
+				}
+				// removing resources 
 			}
-			// removing resources 
 		}
 	}
 
@@ -95,7 +99,7 @@ using namespace std;
 
 	//	UPDATING LEVELS OF ProducerS
 		int counter = Producer::nProducer;
-		// counting Species of known level
+		// counting species of known level
 
 		bool levelUnknown[nMAX] = {};
 		std::fill_n(levelUnknown + counter, Species::nTotal - counter, 1);
@@ -117,13 +121,13 @@ using namespace std;
 
 					for (int j = 0; j < Species::nTotal; j++)
 					{
-						if (levelUnknown[j] && S[i].resources[j] > 0)
+						if (levelUnknown[j]*S[i].resources[j] > 0)
 						{
 							resources_of_unknown_level++;
 							break;
 						}
 					}
-					// Checking if Species is consuming Species of unknown levels
+					// Checking if species is consuming species of unknown levels
 
 					if (resources_of_unknown_level == 0)
 					{
@@ -147,10 +151,10 @@ using namespace std;
 					}
 					// Computing level if already computed level of all resources
 				}
-				// if level of Species is yet to be computed
+				// if level of species is yet to be computed
 			}
 		}
-		// running loop until all Species' levels have been calculated
+		// running loop until all species' levels have been calculated
 	}
 
 
@@ -168,10 +172,10 @@ using namespace std;
 		else if (isProducer && Producer::nProducer != Species::nTotal)
 		{
 				int newIndex = Producer::nProducer;
-				// index of new Species
+				// index of new species
 
 				S[Species::nTotal] = S[newIndex];
-				// moving Species with index nProducer to index n
+				// moving species with index nProducer to index n
 
 				for (int j = 0; j < Species::nTotal; j++)
 				{
@@ -192,7 +196,7 @@ using namespace std;
 							P[j].consumers[Species::nTotal] = P[j].consumers[newIndex];
 							P[j].consumers[newIndex] = 0;
 						}
-						// transmiting links to Producer array if resource is a isProducer Producer
+						// transmiting links to producer array if resource is a isProducer producer
 					}
 					// updating resources
 				}
@@ -229,7 +233,7 @@ using namespace std;
 			}
 			// adding consumer if criteria fulfilled
 
-			P[index].printParameters(index);
+			//P[index].printParameters(index);
 			// printing paramters of new Producer
 		}
 		// new Species is a Producer
@@ -284,7 +288,7 @@ using namespace std;
 			}
 			// adding consumer if criteria fulfilled
 
-			S[index].printParameters(index);
+			//S[index].printParameters(index);
 			// printing Species parameters
 		}
 		// new Species is not a Producer

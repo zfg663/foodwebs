@@ -106,7 +106,7 @@
 
 
 
-//	INITIALIZING JACOBIAN
+//	INITIALIZING COMMUNITY MATRIX
 	void setDensitiesSteady(double steadyStates[], Species S_temp[], Producer P_temp[])
 	{
 		int i;
@@ -124,7 +124,7 @@
 		// densities of other Species
 	}
 
-	MatrixXd Jacobian(MatrixXd J, Species S[], Producer P[])
+	MatrixXd Community(MatrixXd C, Species S[], Producer P[])
 	{
 		int i, j, k;
 		double nutrients = availableNutrients(P);
@@ -135,15 +135,15 @@
 			{
 				if (i == j)
 				{
-					J(i, i) = P[i].growth * (nutrients - P[i].density) - P[i].decay - weaken(S, i);
-					//cout << "J(" << i << "," << j << "): " << J(i, j) << endl;
+					C(i,i) = P[i].growth * (nutrients - P[i].density) - P[i].decay - weaken(S, i);
+					//cout << "C(" << i << "," << j << "): " << C(i,j) << endl;
 				}
 				// filling diagonal entries
 
 				else
 				{
-					J(i, j) = -P[i].growth * P[i].density;
-					//cout << "J(" << i << "," << j << "): " << J(i, j) << endl;
+					C(i,j) = -P[i].growth * P[i].density;
+					//cout << "C(" << i << "," << j << "): " << C(i,j) << endl;
 				}
 				// filling non-diagonal entries
 			}
@@ -151,8 +151,8 @@
 
 			for (k = Producer::nProducer; k < Species::nTotal; k++)
 			{
-				J(i, k) = -P[i].consumers[k] * P[i].density;
-				//cout << "J(" << i << "," << k << "): " << J(i, k) << endl;
+				C(i,k) = -P[i].consumers[k] * P[i].density;
+				//cout << "C(" << i << "," << k << "): " << C(i, k) << endl;
 			}
 			// Producer x Species, nProducer x(N - nProducer)
 		}
@@ -164,22 +164,22 @@
 			{
 				if (k == j)
 				{
-					J(k, k) = strengthen(S, k) - weaken(S, k) - S[k].decay;
-					//cout << "J(" << k << "," << j << "): " << J(k, j) << endl;
+					C(k,k) = strengthen(S, k) - weaken(S, k) - S[k].decay;
+					//cout << "C(" << k << "," << j << "): " << C(k,j) << endl;
 				}
 				// filling diagonal entries
 
 				else
 				{
-					J(k, j) = (S[k].resources[j] - S[k].consumers[j]) * S[k].density;
-					//cout << "J(" << k << "," << j << "): " << J(k, j) << endl;
+					C(k,j) = (S[k].resources[j] - S[k].consumers[j]) * S[k].density;
+					//cout << "C(" << k << "," << j << "): " << C(k,j) << endl;
 				}
 				// filling non-diagonal entries
 			}
 		}
 		// filling rows of Species, (N - nProducer) x N (row (nProducer + 1) to N)
 
-		return J;
+		return C;
 	}
 
 
@@ -262,7 +262,6 @@
 
 		// computing steady states
 		Ssteady = R.inverse() * K;
-		double hurra[5] = { 3.11, 4.3, 5, 1, 2 };
 		std::fill_n(steadyStates, nMAX, 0);
 		std::copy_n(Ssteady(0), Species::nTotal, steadyStates);
 
@@ -303,7 +302,6 @@
 			cout << "---------------\n Steady states: \n---------------\n";
 			cout << Ssteady << "\n---------------\n\n";		
 		}
-
 		else
 		{
 			// updating feasibility and stability of food web
@@ -319,7 +317,7 @@
 	{
 	//	INITIALIZING
 		// declaring matrix and arrays
-		MatrixXd J(Species::nTotal, Species::nTotal);
+		MatrixXd C(Species::nTotal, Species::nTotal);
 		VectorXcd eigenvalues(Species::nTotal);
 		Species S_temp[nMAX];
 		Producer P_temp[nMAX];
@@ -332,10 +330,10 @@
 		
 	//	COMPUTING JACOBIAN AND EIGENVALUES
 		// initializing Jacobian
-		J = Jacobian(J, S_temp, P_temp);
+		C = Community(C, S_temp, P_temp);
 
 		// computing eigenvalues of Jacobian
-		EigenSolver<MatrixXd> es(J);
+		EigenSolver<MatrixXd> es(C);
 		eigenvalues = es.eigenvalues();
 
 		
