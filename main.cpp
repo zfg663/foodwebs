@@ -1,8 +1,8 @@
 
-#include "food_web.cpp"
-#include "time_series.cpp"
-#include "linear_stability.cpp"
-#include "species.cpp"
+#include "code/food_web.cpp"
+#include "code/time_series.cpp"
+#include "code/linear_stability.cpp"
+#include "code/species.cpp"
 #include <iostream>
 #include <sstream>
 
