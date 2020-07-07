@@ -74,22 +74,19 @@ using namespace std;
 			for (int i=0; i<Species::nTotal; i++) 
 			{
 				if (S[i].consumers[index]*S[index].resources[i]==0 && S[i].consumers[index]+S[index].resources[i]!=0) { cout << "Error: mismatched link." << endl; }
-				if (S[index].consumers[i]*S[i].resources[index]==0 && S[index].consumers[i]+S[i].resources[index]!=0) { cout << "Error: mismatched link." << endl; }
+				else if (S[index].consumers[i]*S[i].resources[index]==0 && S[index].consumers[i]+S[i].resources[index]!=0) { cout << "Error: mismatched link." << endl; }
 				// checking for errendous links
 
 				else {
 					S[index].consumers[i] = 0;
 					S[i].resources[index] = 0;
-				}
-				// remving all consumers
-			
-				else 
-				{
+					// remving all consumers
+
 					S[i].consumers[index] = 0;
 					P[i].consumers[index] = 0;
 					S[index].resources[i] = 0;
+					// removing resources 
 				}
-				// removing resources 
 			}
 		}
 	}
@@ -316,7 +313,7 @@ using namespace std;
 			P[index].level = S[index].level = -1;
 
 		//	SETTING ALL INTERACTIONS TO ZERO
-			removeAllLinks(S, P, index);
+			removeLinks(S, P, index);
 
 		//	UPDATING INDICES OF OTHER Species
 			
