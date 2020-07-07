@@ -1,8 +1,7 @@
-// This is new
+
 #include "food_web.cpp"
 #include "time_series.cpp"
 #include "linear_stability.cpp"
-//:wq#include "species.h"
 #include "species.cpp"
 #include <iostream>
 #include <sstream>
@@ -29,17 +28,17 @@ int main()
 	srand(2);
 
 //	FILES
-	ofstream stabEigen("data0/eig_stab.txt");		// eigenvalues of linearly stable food web
-	ofstream ustabEigen("data0/eig_unstab.txt");		// eigenvalues of linearly unstable food web
+	ofstream stabEigen("data/eig_stab.txt");		// eigenvalues of linearly stable food web
+	ofstream ustabEigen("data/eig_unstab.txt");		// eigenvalues of linearly unstable food web
 	// data is saved as: iteration - number of Species - real - imaginary
 
-	ofstream webData("data0/stab_data.txt");				// behavior of food web
+	ofstream webData("data/stab_data.txt");				// behavior of food web
 	// data is saved as:
 	// iteration - number of Species - feasibility - stability - convergence
 	// 1 - steady, 2 - damped oscillations to steady, 3 - periodic, 4 - chaotic, 88 - unknown
 
-	ofstream sFile("data0/species_param.txt");			// Species parameters
-	ofstream pFile("data0/producer_param.txt");			// Producer parameters
+	ofstream sFile("data/species_param.txt");			// Species parameters
+	ofstream pFile("data/producer_param.txt");			// Producer parameters
 	// data is saved as:
 	// iteration - l - S(0) - k - a - consumer - eta
 	// iteration - l - S(0) - a - consumer/resource - eta - beta*eta
