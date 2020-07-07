@@ -1,8 +1,8 @@
 // test
-#include "code/food_web.cpp"
-#include "code/time_series.cpp"
-#include "code/linear_stability.cpp"
-#include "code/species.cpp"
+#include "evolution_code/food_web.cpp"
+#include "evolution_code/time_series.cpp"
+#include "evolution_code/linear_stability.cpp"
+#include "evolution_code/species.cpp"
 #include <iostream>
 #include <sstream>
 
