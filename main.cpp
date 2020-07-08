@@ -18,7 +18,7 @@ int FoodWeb::prevIteration = 0;
 int FoodWeb::prevExtinct = 0;
 // default behavior of last iteration
 
-double addAttemptMAX = 20;
+double addAttemptMAX = 10000;
 // max number of addition attempts
 
 
