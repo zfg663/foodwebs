@@ -29,10 +29,12 @@ double prob = 0.5;		// occupation probability
 int mu = 0;			// mean of gaussian
 int sig = 1;			// std of gaussian
 int Nrep = 1e4;			// number of community matrices in spectrum
-int N = 2;			// number of species
 int d = 1;			// diagonal element
+int N = 2;			// number of species
+cout << "Enter size of community matrix: ";
+cin >> N;
 
-ofstream file("/conv1/zfg663/foodwebs/data/spectra/May_N12.txt");
+ofstream file("/conv1/zfg663/foodwebs/data/spectra/May_N" + to_string(N) + ".txt");
 
 
 for(int rep=0; rep<Nrep; rep++) {
