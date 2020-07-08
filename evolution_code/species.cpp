@@ -17,12 +17,13 @@ Species::Species()
 	}
 
 // constuctor
-Species::Species(int j) : addAttempt(j)
+Species::Species(int j)
 	{
 		density = initialDensity;
 		decay = alpha();
 		level = 0;
 
+		addAttempt = j;
 		isProducer = 0;
 		nTotal++;
 	}
@@ -46,13 +47,14 @@ Producer::Producer()
 	}
 
 // constructor
-Producer::Producer(int j) : addAttempt(j)
+Producer::Producer(int j)
 	{
 		density = initialDensity;
 		growth = kappa();
 		decay = alpha();
 		level = 1;
 
+		addAttempt = j;
 		isProducer = 1;
 		nProducer++;
 		nTotal++;
