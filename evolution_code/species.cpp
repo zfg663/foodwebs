@@ -46,7 +46,7 @@ Producer::Producer()
 	}
 
 // constructor
-Producer::Producer(int j)
+Producer::Producer(int j) : addAttempt(j)
 	{
 		density = initialDensity;
 		growth = kappa();
@@ -54,7 +54,6 @@ Producer::Producer(int j)
 		level = 1;
 
 		isProducer = 1;
-		addAttempt = j;
 		nProducer++;
 		nTotal++;
 	}

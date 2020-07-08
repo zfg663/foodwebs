@@ -33,11 +33,11 @@ using namespace std;
 
 		else
 		{
-			double consumed = eta();
-			double consuming = consumed * beta();
+			double consumptionDeath = eta();
+			double consumptionGrowth = consumptionDeath * beta();
 
-			S[resource].consumers[consumer] = consumed;
-			S[consumer].resources[resource] = consuming;
+			S[resource].consumers[consumer] = consumptionDeath;
+			S[consumer].resources[resource] = consumptionGrowth;
 			// initializing interaction
 
 			if (S[resource].isProducer)
@@ -245,7 +245,7 @@ using namespace std;
 			bool link = 0;
 			while (!link)
 			{
-				link = addLink(S, P, randomInt(0, index), index);
+				link = addLink(S, P, randomInt(0, Species::nTotal), index);
 			}
 			// adding resource
 
@@ -254,7 +254,7 @@ using namespace std;
 			{
 				while (!link)
 				{
-					link = addLink(S, P, randomInt(0, index), index);
+					link = addLink(S, P, randomInt(0, Species::nTotal), index);
 				}
 			}
 			// adding second resource if criteria fulfilled
