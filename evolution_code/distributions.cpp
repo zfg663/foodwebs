@@ -16,7 +16,7 @@ int randomInt(int min, int max)
 
 bool ratio(int a, int b)
 	{
-		double p = (double)(a/b);
+		double p = ((double)a/b);
 		double r = randomDouble(0,1);
 		if (r < p) { return true; }
 		else { return false; }
