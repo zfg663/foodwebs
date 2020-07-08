@@ -11,7 +11,7 @@ double randomDouble(double min, double max)
 
 int randomInt(int min, int max)
 	{
-		return min + (rand() * (int)(max - min) / RAND_MAX);
+		return min + (rand() % static_cast<int>(max - min));
 	}
 
 bool ratio(int a, int b)
