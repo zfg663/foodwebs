@@ -18,7 +18,7 @@ int FoodWeb::prevIteration = 0;
 int FoodWeb::prevExtinct = 0;
 // default behavior of last iteration
 
-double addAttemptMAX = 1e2;
+double addAttemptMAX = 1e4;
 // max number of addition attempts
 
 
@@ -88,8 +88,7 @@ int main()
 		// running time series
 		checkFeasibility(S, P, steadyStates, stabEigen, ustabEigen, addAttempt);
 		timeSeries(S, P, steadyStates, stabEigen, ustabEigen, webData, addAttempt);
-		updateTrophicLevel(S);
-		
+		updateTrophicLevel(S);	
 	}
 	
 	// closing all files
@@ -98,6 +97,13 @@ int main()
 	webData.close();
 	sFile.close();
 	pFile.close();
+
+
+//	RUNNING TESTS
+	for(int i=0; i<0; i++) {
+		cout << randomInt(0, 4) << endl;	
+	}
+
 	
 	return 0;
 }
