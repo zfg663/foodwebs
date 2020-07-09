@@ -1,6 +1,6 @@
 #include "species.h"
 #include "distributions.h"
-#include "distributions.cpp"
+//#include "distributions.cpp"
 #include <iostream>
 
 // Declaring species
