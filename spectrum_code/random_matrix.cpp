@@ -23,6 +23,13 @@ void printMatrix(MatrixXd M, int N) {
 int main() {
 srand(27);
 
+// setting parameters, etc.
+double prob = 0.5;		// occupation probability
+int mu = 0;			// mean of gaussian
+int sig = 1;			// std of gaussian
+int Nrep = 1e4;			// number of community matrices in spectrum
+int d = 1;			// diagonal element
+
 // size of community matrix
 int N = 2;			
 cout << "Enter size of community matrix: ";
@@ -30,13 +37,6 @@ cin >> N;
 
 ofstream file("/conv1/zfg663/foodwebs/data/spectra/May_N" + to_string(N) + ".txt");
 
-
-// setting parameters, etc.
-double prob = 0.5;		// occupation probability
-int mu = 0;			// mean of gaussian
-int sig = 1;			// std of gaussian
-int Nrep = 1e4;			// number of community matrices in spectrum
-int d = 1;			// diagonal element
 
 
 for(int rep=0; rep<Nrep; rep++) {
