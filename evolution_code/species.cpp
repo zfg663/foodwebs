@@ -88,7 +88,7 @@ void Species::printParameters(int index)
 		std::cout << "\nAdded as #: " << addAttempt;
 		std::cout << "\ntrophic level: " << level;
 		std::cout << "\ndensity " << density;
-		//std::cout << "\nprimary: " << isProducer;
+		std::cout << "\nprimary: " << isProducer;
 		std::cout << "\na: " << decay;
 		std::cout << std::endl;
 
@@ -115,7 +115,7 @@ void Producer::printParameters(int index)
 		std::cout << "\nAdded as #: " << addAttempt;
 		std::cout << "\ntrophic level: " << level;
 		std::cout << " \ndensity: " << density;
-		//std::cout << "\nprimary: " << isProducer;
+		std::cout << "\nprimary: " << isProducer;
 		std::cout << ":\nk: " << growth;
 		std::cout << ":\na: " << decay;
 		std::cout << std::endl;
