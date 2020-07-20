@@ -1,0 +1,3 @@
+[submodule "foodwebs_paper"]
+	path = foodwebs_paper
+	url = https://github.com/zfg663/foodwebs_paper
